@@ -1,75 +1,66 @@
-// Navegación simple
-function irA(rol) {
-  if (rol === "admin") {
-    window.location.href = "admin.html";
-  } else if (rol === "comprador") {
-    window.location.href = "comprador.html";
+document.addEventListener("DOMContentLoaded", () => {
+
+  //Esta es la alogica para los campos ocultos
+  const rolSelect = document.getElementById("rol");
+  if (rolSelect) {
+    const camposComprador = document.getElementById("camposComprador");
+    const camposProveedor = document.getElementById("camposProveedor");
+    const camposRepartidor = document.getElementById("camposRepartidor");
+
+    rolSelect.addEventListener("change", () => {
+      const rol = rolSelect.value;
+
+      if (camposComprador) camposComprador.style.display = "none";
+      if (camposProveedor) camposProveedor.style.display = "none";
+      if (camposRepartidor) camposRepartidor.style.display = "none";
+
+      if (rol === "comprador") camposComprador.style.display = "block";
+      if (rol === "proveedor") camposProveedor.style.display = "block";
+      if (rol === "repartidor") camposRepartidor.style.display = "block";
+    });
   }
-}
 
-function volver() {
-  window.location.href = "index.html";
-}
+  const formRegistro = document.getElementById("formRegistro");
+  if (formRegistro) {
+    formRegistro.addEventListener("submit", (e) => {
+      e.preventDefault();
 
-// Lista de productos en memoria (simulación de BD)
-let productos = JSON.parse(localStorage.getItem("productos")) || [];
-let carrito = [];
+      const datos = {
+        rol: document.getElementById("rol").value,
+        nombre: document.getElementById("nombre")?.value || "",
+        apellido: document.getElementById("apellido")?.value || "",
+        razonSocial: document.getElementById("razonSocial")?.value || "",
+        nit: document.getElementById("nit")?.value || "",
+        placaVehiculo: document.getElementById("placaVehiculo")?.value || "",
+        modeloVehiculo: document.getElementById("modeloVehiculo")?.value || "",
+        email: document.getElementById("email").value,
+        contrasena: document.getElementById("contrasena").value,
+        direccion: document.getElementById("direccion").value,
+        telefono: document.getElementById("telefono").value
+      };
 
-// ADMIN: agregar producto
-if (document.getElementById("formProducto")) {
-  const form = document.getElementById("formProducto");
-  form.addEventListener("submit", function(e) {
-    e.preventDefault();
-    const nombre = document.getElementById("nombreProducto").value;
-    const precio = document.getElementById("precioProducto").value;
+      registrarUsuario(datos);
+      formRegistro.reset();
+    });
+  }
 
-    productos.push({ nombre, precio });
-    localStorage.setItem("productos", JSON.stringify(productos));
-    mostrarProductosAdmin();
-    form.reset();
-  });
+  const formLogin = document.getElementById("formLogin");
+  if (formLogin) {
+    formLogin.addEventListener("submit", (e) => {
+      e.preventDefault();
 
-  mostrarProductosAdmin();
-}
+      const email = document.getElementById("loginEmail").value;
+      const contrasena = document.getElementById("loginContrasena").value;
 
-function mostrarProductosAdmin() {
-  const lista = document.getElementById("listaProductos");
-  lista.innerHTML = "";
-  productos.forEach((p, i) => {
-    const li = document.createElement("li");
-    li.textContent = `${p.nombre} - $${p.precio}`;
-    lista.appendChild(li);
-  });
-}
+      const user = login(email, contrasena);
 
-// COMPRADOR: ver productos y carrito
-if (document.getElementById("productosDisponibles")) {
-  mostrarProductosComprador();
-}
+      if (user) {
+        alert(`Bienvenido, rol: ${user.rol}`);
+        window.location.href = "index.html";
+      } else {
+        alert("Correo o contraseña incorrectos");
+      }
+    });
+  }
 
-function mostrarProductosComprador() {
-  const lista = document.getElementById("productosDisponibles");
-  lista.innerHTML = "";
-  productos.forEach((p, i) => {
-    const li = document.createElement("li");
-    li.textContent = `${p.nombre} - $${p.precio}`;
-    const btn = document.createElement("button");
-    btn.textContent = "Agregar al carrito";
-    btn.onclick = () => {
-      carrito.push(p);
-      mostrarCarrito();
-    };
-    li.appendChild(btn);
-    lista.appendChild(li);
-  });
-}
-
-function mostrarCarrito() {
-  const lista = document.getElementById("carrito");
-  lista.innerHTML = "";
-  carrito.forEach((p, i) => {
-    const li = document.createElement("li");
-    li.textContent = `${p.nombre} - $${p.precio}`;
-    lista.appendChild(li);
-  });
-}
+});
